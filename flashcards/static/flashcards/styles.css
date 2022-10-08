@@ -1,0 +1,30 @@
+#app {
+    text-align: center;
+}
+table, td, th {
+    border: 1px solid black;
+}
+
+table {
+    border-collapse: collapse;
+    text-align: center;
+    margin-left:auto;
+    margin-right:auto;
+}
+td, th {
+    padding: 10px
+}
+
+.card {
+    margin: 5px 25% 5px 25%;
+    padding: 10% 0 10% 0;
+    border: solid black 1px;
+    background-color: rgb(217, 216, 216);
+}
+
+.card-front {
+    background-color: bisque;
+}
+.card-back {
+    background-color: rgb(154, 183, 161);
+}
