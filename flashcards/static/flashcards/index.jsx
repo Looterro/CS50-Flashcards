@@ -74,14 +74,16 @@ class CardViewer extends React.Component {
         this.state = {
             number: 0,
             front: true,
+            cardsCopy: this.props.cards,
         }
     }
 
 
     render() {
 
-        const card = this.props.cards[this.state.number];
+        const card = this.state.cardsCopy[this.state.number];
         console.log(this.state.front);
+        console.log(this.state.cardsCopy)
 
         return (
             <div>
@@ -92,6 +94,7 @@ class CardViewer extends React.Component {
                     <strong>{this.state.front ? card.front : card.back}</strong>
                 </div>
                 <button onClick={this.changeCard}>Next Card</button>
+                <button onClick={this.shuffleCards}>Shuffle Cards</button>
                 <hr />
                 <button onClick={this.props.switchMode}>Go to Editor</button>
             </div>
@@ -116,6 +119,25 @@ class CardViewer extends React.Component {
                 number: state.number + 1,
             }));
         }
+    }
+
+    shuffleCards = () => {
+                        
+        const shuffledCards = [ ...this.state.cardsCopy ];
+        
+        for (let i = shuffledCards.length - 1; i > 0; --i) {
+            const j = Math.floor(Math.random() * i);
+            const temp = shuffledCards[i];
+            shuffledCards[i] = shuffledCards[j];
+            shuffledCards[j] = temp;
+        };
+
+        console.log(shuffledCards);
+
+        this.setState(state => ({
+                cardsCopy: shuffledCards,
+        }));
+        
     }
 
 }
