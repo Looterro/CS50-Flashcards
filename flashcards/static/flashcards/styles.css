@@ -28,3 +28,6 @@ td, th {
 .card-back {
     background-color: rgb(154, 183, 161);
 }
+.learned {
+    color: green;
+}

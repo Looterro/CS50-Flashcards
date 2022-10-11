@@ -4,7 +4,8 @@ class CardEditor extends React.Component {
         super(props);
         this.state = {
             front: "",
-            back: ""
+            back: "",
+            learned: false,
         }
     }
 
@@ -15,6 +16,7 @@ class CardEditor extends React.Component {
                 <tr key={i}>
                     <td>{card.front}</td>
                     <td>{card.back}</td>
+                    <td data-index={i} onClick={this.changeLearned} className={card.learned ? "learned" : ""}> {card.learned ? "Yes" : "No"}</td>
                     <td><button data-index={i} onClick={this.deleteCard}>Delete</button></td>
                 </tr>
             )
@@ -28,6 +30,7 @@ class CardEditor extends React.Component {
                         <tr>
                             <th>Front</th>
                             <th>Back</th>
+                            <th>Learned</th>
                             <th>Delete</th>
                         </tr>
                     </thead>
@@ -54,15 +57,19 @@ class CardEditor extends React.Component {
     
     //call the props function to add cards and clear the contents of inputs
     addCard = () => {
-        this.props.addCard(this.state.front, this.state.back);
+        this.props.addCard(this.state.front, this.state.back, this.state.learned);
         this.setState({
             front: "",
-            back: ""
+            back: "",
         });
     }
 
     deleteCard = (event) => {
         this.props.deleteCard(event.target.dataset.index)
+    }
+
+    changeLearned = (event) => {
+        this.props.changeLearned(event.target.dataset.index)
     }
 
 }
@@ -74,16 +81,28 @@ class CardViewer extends React.Component {
         this.state = {
             number: 0,
             front: true,
-            cardsCopy: this.props.cards,
+            localCards: this.props.cards.filter(card => card.learned === false),
         }
     }
 
 
     render() {
 
-        const card = this.state.cardsCopy[this.state.number];
+        const card = this.state.localCards[this.state.number];
         console.log(this.state.front);
-        console.log(this.state.cardsCopy)
+        console.log(this.state.localCards);
+        
+        if(this.state.localCards.length === 0) {
+            return (
+                <div>
+                    <br />
+                    No cards to learn!
+                    <br />
+                    <hr />
+                    <button onClick={this.props.switchMode}>Go to Editor</button>
+                </div>
+            )
+        }
 
         return (
             <div>
@@ -95,6 +114,7 @@ class CardViewer extends React.Component {
                 </div>
                 <button onClick={this.changeCard}>Next Card</button>
                 <button onClick={this.shuffleCards}>Shuffle Cards</button>
+                <button onClick={this.changeLearned}>Mark as learned</button>
                 <hr />
                 <button onClick={this.props.switchMode}>Go to Editor</button>
             </div>
@@ -113,17 +133,31 @@ class CardViewer extends React.Component {
         console.log(this.props.cards.length);
         const index = this.state.number + 1;
 
-        if ( index < this.props.cards.length) {
+        if ( index < this.state.localCards.length) {
 
             this.setState(state => ({
                 number: state.number + 1,
             }));
+
         }
     }
 
+    changeLearned = () => {
+
+        let card = this.state.localCards[this.state.number];
+
+        //filter original card array and check for the same fron and the back to change that objects status of learned independently of the shuffled copyCards array
+        this.props.changeLearned(this.props.cards.findIndex(object => { return object.front == `${card.front}` && object.back == `${card.back}` }));
+        
+        this.setState(state => ({
+                localCards: state.localCards.filter(card => card.learned === false),
+        }));
+    }
+
+    //Use this function to shuffle cards only in this component, without doing it in the main app so that once you come back to editor everything comes back to normal
     shuffleCards = () => {
-                        
-        const shuffledCards = [ ...this.state.cardsCopy ];
+            
+        const shuffledCards = [ ...this.state.localCards ];
         
         for (let i = shuffledCards.length - 1; i > 0; --i) {
             const j = Math.floor(Math.random() * i);
@@ -135,10 +169,11 @@ class CardViewer extends React.Component {
         console.log(shuffledCards);
 
         this.setState(state => ({
-                cardsCopy: shuffledCards,
+                localCards: shuffledCards.filter(card => card.learned === false),
         }));
         
     }
+
 
 }
 
@@ -162,6 +197,7 @@ class App extends React.Component {
                     switchMode={this.switchMode}
                     addCard={this.addCard}
                     deleteCard={this.deleteCard}
+                    changeLearned={this.changeLearned}
                 /> 
             );
 
@@ -171,6 +207,8 @@ class App extends React.Component {
                <CardViewer
                cards={this.state.cards}
                switchMode={this.switchMode}
+               shuffleCards={this.shuffleCards}
+               changeLearned={this.changeLearned}
                /> 
             );
 
@@ -183,9 +221,18 @@ class App extends React.Component {
         }));
     }
 
-    addCard = (front, back) => {
+    addCard = (front, back, learned) => {
+
+        let checkDoubles = this.state.cards.findIndex(object => { return object.front == front && object.back == back })
+        console.log(checkDoubles)
+
+        //Check if user added the same front and back of a card already and send a request to change them to a different value
+        if (checkDoubles !== -1) {
+            return alert('You already added that card!')
+        }
+
         this.setState(state => ({
-            cards: [...state.cards, { front: front, back: back }]
+            cards: [...state.cards, {front: front, back: back, learned: learned }]
         }))
     }
 
@@ -193,6 +240,17 @@ class App extends React.Component {
         this.setState(state => {
             const cards = [...state.cards];
             cards.splice(index, 1);
+            return { cards: cards };
+        });
+    }
+
+    //Get copy of cards and then change the status of learned at the corresponding index
+    changeLearned = (index) => {
+        this.setState(state => {
+            const cards = [...state.cards];
+            console.log(cards[index]);
+            console.log(cards[index].learned);
+            cards[index].learned = !cards[index].learned;
             return { cards: cards };
         });
     }
