@@ -16,8 +16,8 @@ class CardEditor extends React.Component {
                 <tr key={i}>
                     <td>{card.front}</td>
                     <td>{card.back}</td>
-                    <td data-index={i} data-id={card.id} onClick={this.changeLearned} className={card.learned ? "learned" : ""}> {card.learned ? "Yes" : "No"}</td>
-                    <td><button data-index={i} data-id={card.id} onClick={this.deleteCard}>Delete</button></td>
+                    <td><button data-index={i} data-id={card.id} onClick={this.changeLearned} className={card.learned ? "btn learned" : "btn not_learned"}>{card.learned ? "Yes" : "No"}</button></td>
+                    <td><button class="btn btn-sm btn-danger"data-index={i} data-id={card.id} onClick={this.deleteCard}>Delete</button></td>
                 </tr>
             )
         })
@@ -39,11 +39,13 @@ class CardEditor extends React.Component {
                     </tbody>
                 </table>
                 <br />
-                <input onChange={this.handleChange} name="front" placeholder="Front of Card" value={this.state.front} />
-                <input onChange={this.handleChange} name="back" placeholder="Back of Card" value={this.state.back} />
-                <button onClick={this.addCard}>Add Card</button>
+                <input className="input" onChange={this.handleChange} name="front" placeholder="Front of Card" value={this.state.front} />
+                <span> </span>
+                <input className="input" onChange={this.handleChange} name="back" placeholder="Back of Card" value={this.state.back} />
+                <span> </span>
+                <button className="btn btn-sm btn-secondary" onClick={this.addCard}>Add Card</button>
                 <hr />
-                <button onClick={this.props.switchMode}>Go to Viewer</button>
+                <button className="btn btn-sm btn-info" onClick={this.props.switchMode}>Go to Viewer</button>
             </div>
         )
     }
@@ -112,7 +114,7 @@ class CardViewer extends React.Component {
                     No cards to learn!
                     <br />
                     <hr />
-                    <button onClick={this.props.switchMode}>Go to Editor</button>
+                    <button className="btn btn-sm btn-info" onClick={this.props.switchMode}>Go to Editor</button>
                 </div>
             )
         }
@@ -125,11 +127,11 @@ class CardViewer extends React.Component {
                 <div className={this.state.front ? "card card-front" : "card card-back"} onClick={this.changeSide}>
                     <strong>{this.state.front ? card.front : card.back}</strong>
                 </div>
-                <button onClick={this.changeCard}>Next Card</button>
-                <button onClick={this.shuffleCards}>Shuffle Cards</button>
-                <button onClick={this.changeLearned}>Mark as learned</button>
+                <button className="btn btn-sm btn-success" onClick={this.changeCard}>Next Card</button><span> </span>
+                <button className="btn btn-sm btn-success" onClick={this.shuffleCards}>Shuffle Cards</button><span> </span>
+                <button className="btn btn-sm btn-success" onClick={this.changeLearned}>Mark as learned</button>
                 <hr />
-                <button onClick={this.props.switchMode}>Go to Editor</button>
+                <button className="btn btn-sm btn-info" onClick={this.props.switchMode}>Go to Editor</button>
             </div>
         )
     }

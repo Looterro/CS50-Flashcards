@@ -1,5 +1,15 @@
+
+body {
+    background-color: antiquewhite;
+}
+
 #app {
     text-align: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 50px 20% 0 20%;
+    padding: 10px;
+    background-color: white;
 }
 table, td, th {
     border: 1px solid black;
@@ -16,7 +26,7 @@ td, th {
 }
 
 .card {
-    margin: 5px 25% 5px 25%;
+    margin: 15px 20% 15px 20%;
     padding: 10% 0 10% 0;
     border: solid black 1px;
     background-color: rgb(217, 216, 216);
@@ -30,4 +40,14 @@ td, th {
 }
 .learned {
     color: green;
+    font-weight: bold;
+    border: none;
+}
+.not_learned {
+    font-weight: bold;
+    border: none;
+}
+
+.btn, .input {
+    margin: 1px;
 }
