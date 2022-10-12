@@ -17,7 +17,7 @@ class CardEditor extends React.Component {
                     <td>{card.front}</td>
                     <td>{card.back}</td>
                     <td data-index={i} onClick={this.changeLearned} className={card.learned ? "learned" : ""}> {card.learned ? "Yes" : "No"}</td>
-                    <td><button data-index={i} onClick={this.deleteCard}>Delete</button></td>
+                    <td><button data-index={i} data-id={card.id} onClick={this.deleteCard}>Delete</button></td>
                 </tr>
             )
         })
@@ -58,6 +58,14 @@ class CardEditor extends React.Component {
     //call the props function to add cards and clear the contents of inputs
     addCard = () => {
         this.props.addCard(this.state.front, this.state.back, this.state.learned);
+        fetch("/flashcards_compose", {
+            method: 'POST',
+            body: JSON.stringify({
+                front: this.state.front,
+                back: this.state.back
+            })
+        })
+
         this.setState({
             front: "",
             back: "",
@@ -65,6 +73,11 @@ class CardEditor extends React.Component {
     }
 
     deleteCard = (event) => {
+
+        fetch(`/flashcard_delete/${event.target.dataset.id}`, {
+            method: 'PUT'
+        })
+
         this.props.deleteCard(event.target.dataset.index)
     }
 
@@ -183,37 +196,64 @@ class App extends React.Component {
         super(props);
         this.state = {
             editor: true,
-            cards: []
+            cards: [],
+            isLoaded: false,
         };
     }
 
+    componentDidMount() {
+
+        fetch("/flashcards")
+        .then(response => response.json())
+        .then(data => {
+
+            this.setState({
+                isLoaded: true,
+                cards: data.flashcards
+            });
+
+            console.log(data.flashcards)
+        })
+
+    }
+
     render() {
+        const { editor, cards, isLoaded } = this.state;
+        console.log(this.state.cards)
 
-        if (this.state.editor) {
-
+        if (!isLoaded) {
             return (
-               <CardEditor 
-                    cards={this.state.cards}
-                    switchMode={this.switchMode}
-                    addCard={this.addCard}
-                    deleteCard={this.deleteCard}
-                    changeLearned={this.changeLearned}
-                /> 
-            );
-
+                <div>loading...</div>
+            )
         } else {
 
-            return (
-               <CardViewer
-               cards={this.state.cards}
-               switchMode={this.switchMode}
-               shuffleCards={this.shuffleCards}
-               changeLearned={this.changeLearned}
-               /> 
-            );
+            if (this.state.editor) {
 
+                return (
+                   <CardEditor 
+                        cards={this.state.cards}
+                        switchMode={this.switchMode}
+                        addCard={this.addCard}
+                        deleteCard={this.deleteCard}
+                        changeLearned={this.changeLearned}
+                    /> 
+                );
+    
+            } else {
+    
+                return (
+                   <CardViewer
+                   cards={this.state.cards}
+                   switchMode={this.switchMode}
+                   shuffleCards={this.shuffleCards}
+                   changeLearned={this.changeLearned}
+                   /> 
+                );
+    
+            }
         }
-    }
+        }
+        
 
     switchMode = () => {
         this.setState(state => ({
