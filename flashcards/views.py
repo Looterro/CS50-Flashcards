@@ -59,11 +59,24 @@ def flashcard_delete(request, flashcard_id):
     flashcard.delete()
     return HttpResponse(status=204)
 
+@csrf_exempt
 def flashcard(request, flashcard_id):
 
-    flashcard = Flashcard.objects.filter(id = flashcard_id)
+    flashcard = Flashcard.objects.get(id = flashcard_id)
 
     if request.method == "GET":
+        return JsonResponse(flashcard.serialize())
+
+    elif request.method == "PUT":
+
+        data = json.loads(request.body)
+
+        if data.get("learned") is not None:
+            flashcard.learned = data["learned"]
+            flashcard.save()
+            return HttpResponse(status=204)
+
+    else:
         return JsonResponse({
-            "flashcard": [flashcard.serialize() for flashcard in flashcard]
-        }, safe=False)
+            "error": "GET or PUT request required."
+        }, status=400)

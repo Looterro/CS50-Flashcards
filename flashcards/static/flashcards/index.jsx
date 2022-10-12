@@ -16,7 +16,7 @@ class CardEditor extends React.Component {
                 <tr key={i}>
                     <td>{card.front}</td>
                     <td>{card.back}</td>
-                    <td data-index={i} onClick={this.changeLearned} className={card.learned ? "learned" : ""}> {card.learned ? "Yes" : "No"}</td>
+                    <td data-index={i} data-id={card.id} onClick={this.changeLearned} className={card.learned ? "learned" : ""}> {card.learned ? "Yes" : "No"}</td>
                     <td><button data-index={i} data-id={card.id} onClick={this.deleteCard}>Delete</button></td>
                 </tr>
             )
@@ -82,7 +82,7 @@ class CardEditor extends React.Component {
     }
 
     changeLearned = (event) => {
-        this.props.changeLearned(event.target.dataset.index)
+        this.props.changeLearned(event.target.dataset.index, event.target.dataset.id)
     }
 
 }
@@ -160,7 +160,7 @@ class CardViewer extends React.Component {
         let card = this.state.localCards[this.state.number];
 
         //filter original card array and check for the same fron and the back to change that objects status of learned independently of the shuffled copyCards array
-        this.props.changeLearned(this.props.cards.findIndex(object => { return object.front == `${card.front}` && object.back == `${card.back}` }));
+        this.props.changeLearned(this.props.cards.findIndex(object => { return object.id == card.id }), card.id);
         
         this.setState(state => ({
                 localCards: state.localCards.filter(card => card.learned === false),
@@ -183,6 +183,7 @@ class CardViewer extends React.Component {
 
         this.setState(state => ({
                 localCards: shuffledCards.filter(card => card.learned === false),
+                number: 0,
         }));
         
     }
@@ -285,7 +286,15 @@ class App extends React.Component {
     }
 
     //Get copy of cards and then change the status of learned at the corresponding index
-    changeLearned = (index) => {
+    changeLearned = (index, id) => {
+
+        fetch(`/flashcard/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                learned: !this.state.cards[index].learned
+            })
+        })
+
         this.setState(state => {
             const cards = [...state.cards];
             console.log(cards[index]);
